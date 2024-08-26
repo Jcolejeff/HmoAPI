@@ -36,7 +36,7 @@ async def create_organization(
         db=db, 
         payload=CreateGroup(
             organization_id=created_org.id, 
-            name="General department", 
+            name=payload.name + " Department",
             member_ids=[user.id], 
             approver_ids=[user.id],
             approval_levels=1

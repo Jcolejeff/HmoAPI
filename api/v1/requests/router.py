@@ -32,33 +32,7 @@ async def create_request(
 
     created_request = await RequestService.create(payload=payload, db=db)
 
-    # send approval email to approver
-    if (config('MAIL_SERVER')):
-        # create magic link access token
-        magic_token_expires = timedelta(minutes=MAGIC_TOKEN_EXPIRE_MINUTES)
-        magic_token = Auth.create_access_token(
-            data={"id": user.id}, db=db, expires_delta=magic_token_expires)
-
-        # get approvers
-        approvers = GroupMemberService.get_user_approvers(
-            user_id=created_request.requester_id, db=db)
-
-        for approver in approvers:
-
-            data = {
-                "first_name":  approver.approver.first_name,
-                "last_name": approver.approver.last_name,
-                "requester_first_name": user.first_name,
-                "requester_last_name": user.last_name,
-                "link": f"{config('APP_URL')}/requests/approve?token={magic_token}&&org_id={payload.organization_id}&&req_id={created_request.id}"
-
-            }
-
-            await EmailService.send(title="A travel request requires your approval", template_name="approvalRequest.html",
-                                    recipients=[approver.approver.email],
-                                    background_task=background_task,
-                                    template_data=data)
-
+    
     return created_request
 
 
@@ -131,29 +105,12 @@ async def update_request(
 
     update_request = await RequestService.update_request_in_organization(id=id, payload=payload, updater=user.id, db=db)
 
+
     if update_request.status == RequestStatusEnum.APPROVED.value:
-        # trigger booking request
-        booking_service.create_booking()
+        print("Request approved", update_request.id , update_request.status) 
+        print("calling open ai with the request id")  
+        
 
-        # send success email
-        if (config('MAIL_SERVER')):
-            user = UserService.fetch(id=update_request.requester_id, db=db)
-            data = {
-                "first_name":  user.first_name,
-                "last_name": user.last_name,
-                "location": f'{update_request.city}, {update_request.state}, {update_request.country}',
-                "hotel": update_request.hotel,
-                "room": update_request.room,
-                "checkin": update_request.start,
-                "checkout": update_request.end,
-                "meal": update_request.meal,
-                "transport": update_request.transport,
-                "additional_requests": update_request.other_requests
-            }
-
-            await EmailService.send(title="Request Approval", template_name="approval.html",
-                                    recipients=[user.email],
-                                    background_task=background_task,
-                                    template_data=data)
+        
 
     return update_request
