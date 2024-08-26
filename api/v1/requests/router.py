@@ -11,7 +11,7 @@ from api.v1.auth.services import Auth
 from api.v1.groups.services import GroupMemberService
 from api.utils import paginator
 from api.v1.requests.models import RequestStatusEnum
-from api.utils.booking import booking_service
+from api.utils.callingOpenaiForApprovedStatus import openai_service
 from datetime import timedelta
 
 from decouple import config
@@ -109,7 +109,7 @@ async def update_request(
     if update_request.status == RequestStatusEnum.APPROVED.value:
         print("Request approved", update_request.id , update_request.status) 
         print("calling open ai with the request id")  
-        
+        openai_service.call_openai()
 
         
 
