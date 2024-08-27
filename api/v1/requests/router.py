@@ -1,4 +1,4 @@
-from fastapi import Depends, APIRouter, Depends, status, BackgroundTasks
+from fastapi import APIRouter, Depends, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from api.v1.user import schemas as user_schema
 from api.db.database import get_db
@@ -11,9 +11,8 @@ from api.v1.auth.services import Auth
 from api.v1.groups.services import GroupMemberService
 from api.utils import paginator
 from api.v1.requests.models import RequestStatusEnum
-from api.utils.callingOpenaiForApprovedStatus import openai_service
 from datetime import timedelta
-
+from api.utils.callingOpenaiForApprovedStatus import OpenAiService
 from decouple import config
 
 MAGIC_TOKEN_EXPIRE_MINUTES = int(config('ACCESS_TOKEN_EXPIRE_MINUTES'))
@@ -100,17 +99,18 @@ async def update_request(
     user: user_schema.ShowUser = Depends(is_authenticated),
     db: Session = Depends(get_db)
 ):
-
     await is_org_member(organization_id=payload.organization_id, user=user, db=db)
 
     update_request = await RequestService.update_request_in_organization(id=id, payload=payload, updater=user.id, db=db)
-
-
+    
     if update_request.status == RequestStatusEnum.APPROVED.value:
-        print("Request approved", update_request.id , update_request.status) 
-        print("calling open ai with the request id")  
-        openai_service.call_openai(request_id=update_request.id)
-
+        print("Request approved", update_request.id, update_request.status) 
+        print("Calling OpenAI with the request id", update_request.id, update_request.status)  
         
+        # Initialize the OpenAiService with the db session
+        openai_service = OpenAiService(api_key='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', db=db)
+        
+        # Call OpenAI service asynchronously
+        background_task.add_task(openai_service.call_openai, payload=update_request, request_id=update_request.id, author_id=user.id)
 
     return update_request
