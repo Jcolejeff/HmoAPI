@@ -11,13 +11,13 @@ class RequestBase(BaseModel):
     organization_id: int
     state: str
     city: str
-    country: str
+    country: Optional[str] = None
     start: date
     end: date
-    purpose: str
-    hotel: str
-    room: str
-    rate: float
+    purpose: Optional[str] = None
+    hotel: Optional[str] = None
+    room: Optional[str] = None
+    rate: Optional[float] = None
     meal: Optional[str] = None
     transport: Optional[str] = None
     other_requests: Optional[str] = None
@@ -29,16 +29,7 @@ class RequestBase(BaseModel):
 class CreateRequest(RequestBase):
     status: Optional[RequestStatusEnum] = RequestStatusEnum.PENDING.value
 
-    @model_validator(mode='before')
-    @classmethod
-    def validate_start_and_end(cls, values):
-        start_dt = values.get("start")
-        end_dt = values.get("end")
-
-        if start_dt > end_dt:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Start date cannot be farther than end date")
-
-        return values
+    
 
 
 class RequestApproval(BaseModel):
@@ -84,17 +75,7 @@ class UpdateRequest(BaseModel):
     transport: Optional[str] = None
     other_requests: Optional[str] = None
 
-    @model_validator(mode='before')
-    @classmethod
-    def validate_start_and_end(cls, values):
-        start_dt = values.get("start")
-        end_dt = values.get("end")
-
-        if start_dt and end_dt:
-            if start_dt > end_dt:
-                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Start date cannot be farther than end date")
-
-        return values
+   
 
 
 class UpdateRequestApproval(BaseModel):

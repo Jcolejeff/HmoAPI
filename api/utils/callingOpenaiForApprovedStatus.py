@@ -49,13 +49,20 @@ class OpenAiService:
             processed_comments.append(processed_comment)
 
         print(processed_comments)  # This will print the processed comments
-
-        # Make the OpenAI API call
+        issue_object = {
+                "description": payload.purpose,
+                "department": payload.state,
+                "start_date": payload.start,
+                "faculty": payload.hotel,
+                "level": payload.rate
+        }
+        print(issue_object)
+        #Make the OpenAI API call
         try:
             response = openai.ChatCompletion.create(
                 model="nousresearch/hermes-3-llama-3.1-405b",
                 messages=[
-                    {"role": "user", "content": f"return an object with three fields: request_id: {request_id}, org_id:{payload.organization_id}, author_id:{author_id}, status: {payload.status}, department:{payload.hotel}, Comments: {processed_comments}. Return nothing else but the object, no comments or thoughts, just the object, please."},
+                    {"role": "user", "content": f"So i have a pretty intereting task for you , i would give you an issue object that has fields like department,level(school year in uni), decription of issue, and the comments on that issue, my frontend is a ticket management software for a university, so i want it so that when a ticket is approved or closed, i generate a summary of that issue , and have a page where other students can see the resolved issues, incase they have a similar issue, so i want you to look at the issue object, get the title from the description , get the issue, and get the solution , it's very importat to go through the comments so you can have more insights as the how the issue was resolved, the latest convo is the last item in the comments array , so what i want you to return is an object with these fields ,  title:, issue:, and solution: ,  these are the comments  - Comments: {processed_comments} and this is the issue object:{issue_object} . Return nothing else but the object, no comments or thoughts, just the object, please.just the object with the fields i mentioned, thanks, which are title,issue, solution" },
                 ],
             )
             print(response['choices'][0]["message"]["content"])
