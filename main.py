@@ -12,6 +12,7 @@ from api.v1.groups.router import app as group
 from api.v1.hotels.router import app as hotels
 from api.v1.requests.router import app as requests
 from api.v1.comments.router import app as comments
+from api.v1.closed.router import app as closed
 from api.v1.analytics.router import app as analytics
 # from api.v1.hotels.router import app as hotels
 from api.v1.files.router import app as files
@@ -45,6 +46,7 @@ app.include_router(hotels, tags=["Hotels"], prefix="/v1")
 app.include_router(requests, tags=["Requests"], prefix="/v1")
 app.include_router(comments, tags=["Comments"], prefix="/v1")
 app.include_router(analytics, tags=["Analytics"], prefix="/v1")
+app.include_router(closed, tags=["Closeds"], prefix="/v1")
 # app.include_router(hotels, tags=["Hotels"], prefix="/v1")
 app.include_router(files, tags=["Files"], prefix="/v1")
 

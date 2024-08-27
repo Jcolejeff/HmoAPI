@@ -109,7 +109,7 @@ async def update_request(
     if update_request.status == RequestStatusEnum.APPROVED.value:
         print("Request approved", update_request.id , update_request.status) 
         print("calling open ai with the request id")  
-        openai_service.call_openai()
+        openai_service.call_openai(request_id=update_request.id)
 
         
 
