@@ -24,7 +24,7 @@ MySQL >= 8.0
 2. Activate virtual environment.
 
 ```sh
-    source .\env\Scripts\activate`
+    source .venv/bin/activate`
 ```
 
 3. Install project dependencies `pip install -r requirements.txt`
